@@ -1,6 +1,6 @@
 /*
-	template:
-	{
+  template:
+  {
     "name": string, website display name
     "url": query url, can be a function that takes in the current word
     "is_available": function to validate that a username is available
@@ -10,7 +10,7 @@
 
     "request_method": defaults to get
     "request_data": can contain functions that take in the current word
-	}
+  }
 */
 
 export default [
