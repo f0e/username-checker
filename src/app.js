@@ -3,8 +3,6 @@ import chalk from 'chalk';
 
 import * as functions from './functions.js';
 
-const spacer = () => process.stdout.write(chalk.grey(' | '));
-
 async function main() {
   const service = await functions.selectService();
 
@@ -17,44 +15,51 @@ async function main() {
       const word = searchData.words[i];
       const request = functions.getWordRequestData(service, word);
 
-      let res;
-      try {
-        res = await axios.request({
-          url: request.url,
-          method: request.method,
-          data: request.data,
-        });
-      } catch (e) {
-        // axios failed, but we still want to use the response (it might be a 404?)
-        res = e.response;
-      }
+      let out = chalk.grey(`${done + 1}/${searchData.words.length}: `) + word;
+      const spacer = () => (out += chalk.grey(' | '));
 
-      process.stdout.write(
-        chalk.grey(`${done + 1}/${searchData.words.length}: `)
-      );
-      process.stdout.write(word);
+      const check = async () => {
+        let res;
+        try {
+          res = await axios.request({
+            url: request.url,
+            method: request.method,
+            data: request.data,
+          });
+        } catch (e) {
+          // axios failed, but we still want to use the response (it might be a 404?)
+          res = e.response;
+        }
+
+        if (!res) {
+          spacer();
+          return;
+        }
+
+        spacer();
+
+        let available = false;
+        try {
+          available = service.is_available(res);
+        } catch (e) {
+          out += chalk.red(e);
+          return;
+        }
+
+        await functions.onWordChecked(service, word, available);
+
+        if (available) out += chalk.green('available!');
+        else out += chalk.red('taken');
+      };
+
+      await check();
+      console.log(out);
 
       done++;
 
-      if (!res) {
-        spacer();
-        console.log('failed to send request');
-        return;
+      if (done >= searchData.words.length) {
+        console.log('done.');
       }
-
-      spacer();
-
-      let available = false;
-      try {
-        available = service.is_available(res);
-      } catch (e) {
-        console.log(e);
-      }
-
-      await functions.onWordChecked(service, word, available);
-
-      if (available) console.log(chalk.green('available!'));
-      else console.log(chalk.red('taken'));
     }, i * searchData.rateLimit);
   }
 }
