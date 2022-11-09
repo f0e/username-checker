@@ -246,7 +246,7 @@ export function getWordRequestData(service, word) {
 
   let data = null;
   if (service.request_data) {
-    Object.assign(data, service.request_data);
+    data = Object.assign({}, service.request_data);
     fixRequestData(data);
   }
 
