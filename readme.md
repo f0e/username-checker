@@ -6,4 +6,4 @@ Check a bunch of usernames on websites automatically.
 
 ## adding sites
 
-Edit `services.js` to add sites.
+Rename `services.example.js` to `services.js` and edit it accordingly to add sites.

@@ -1,6 +1,7 @@
 # app
 wordlists/*
 output
+services.js
 
 !*.gitkeep
 
