@@ -19,7 +19,7 @@ export default [
     url: 'https://example.com',
     min_length: 2,
     max_length: 10,
-    is_available: (msg) => msg.available,
+    is_available: (msg) => msg.data.available,
 
     request_method: 'post',
     request_data: {

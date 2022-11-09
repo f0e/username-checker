@@ -17,11 +17,17 @@ async function main() {
       const word = searchData.words[i];
       const request = functions.getWordRequestData(service, word);
 
-      const res = await axios.request({
-        url: request.url,
-        method: request.method,
-        data: request.data,
-      });
+      let res;
+      try {
+        res = await axios.request({
+          url: request.url,
+          method: request.method,
+          data: request.data,
+        });
+      } catch (e) {
+        // axios failed, but we still want to use the response (it might be a 404?)
+        res = e.response;
+      }
 
       process.stdout.write(
         chalk.grey(`${done + 1}/${searchData.words.length}: `)
@@ -38,15 +44,17 @@ async function main() {
 
       spacer();
 
-      const available = service.is_available(res.data);
-      await functions.onWordChecked(service, word, available);
-
-      if (available) {
-        process.stdout.write(chalk.green('available!'));
-        spacer();
+      let available = false;
+      try {
+        available = service.is_available(res);
+      } catch (e) {
+        console.log(e);
       }
 
-      console.log(res.data);
+      await functions.onWordChecked(service, word, available);
+
+      if (available) console.log(chalk.green('available!'));
+      else console.log(chalk.red('taken'));
     }, i * searchData.rateLimit);
   }
 }

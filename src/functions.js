@@ -244,7 +244,7 @@ export function getWordRequestData(service, word) {
     }
   };
 
-  let data = service.requestData;
+  let data = Object.assign({}, service.request_data);
   if (data) fixRequestData(data);
 
   // set default method
