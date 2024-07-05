@@ -1,9 +1,8 @@
 # app
 wordlists/*
+!wordlists/names.txt
 output
 services.js
-
-!*.gitkeep
 
 # Logs
 logs

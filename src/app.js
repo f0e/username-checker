@@ -15,8 +15,8 @@ async function main() {
       const word = searchData.words[i];
       const request = functions.getWordRequestData(service, word);
 
-      let out = chalk.grey(`${done + 1}/${searchData.words.length}: `) + word;
-      const spacer = () => (out += chalk.grey(' | '));
+      let availableText = '';
+      const spacer = () => (availableText += chalk.grey(' | '));
 
       const check = async () => {
         let res;
@@ -38,22 +38,28 @@ async function main() {
 
         spacer();
 
+        if (service.debug) service.debug(res);
+
         let available = false;
         try {
           available = service.is_available(res);
         } catch (e) {
-          out += chalk.red(e);
+          availableText += chalk.red(e);
           return;
         }
 
         await functions.onWordChecked(service, word, available);
 
-        if (available) out += chalk.green('available!');
-        else out += chalk.red('taken');
+        if (available) availableText += chalk.green('available!');
+        else availableText += chalk.red('taken');
       };
 
       await check();
-      console.log(out);
+      console.log(
+        chalk.grey(`${done + 1}/${searchData.words.length}: `) +
+          word +
+          availableText
+      );
 
       done++;
 
