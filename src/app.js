@@ -9,6 +9,7 @@ async function main() {
   const searchData = await functions.getSearchData(service);
   console.log('found', searchData.words.length, 'unchecked words');
 
+  const allAvailable = [];
   let done = 0;
   for (let i = 0; i < searchData.words.length; i++) {
     setTimeout(async () => {
@@ -16,7 +17,7 @@ async function main() {
       const request = functions.getWordRequestData(service, word);
 
       let availableText = '';
-      const spacer = () => (availableText += chalk.grey(' | '));
+      const spacer = () => (availableText += chalk.dim(' | '));
 
       const check = async () => {
         let res;
@@ -50,13 +51,15 @@ async function main() {
 
         await functions.onWordChecked(service, word, available);
 
-        if (available) availableText += chalk.green('available!');
-        else availableText += chalk.red('taken');
+        if (available) {
+          availableText += chalk.green('available!');
+          allAvailable.push(word);
+        } else availableText += chalk.red('taken');
       };
 
       await check();
       console.log(
-        chalk.grey(`${done + 1}/${searchData.words.length}: `) +
+        chalk.dim(`${done + 1}/${searchData.words.length}: `) +
           word +
           availableText
       );
@@ -65,6 +68,11 @@ async function main() {
 
       if (done >= searchData.words.length) {
         console.log('done.');
+        console.log(
+          chalk.green(allAvailable.length) +
+            ' available usernames: ' +
+            chalk.dim(allAvailable.join(', '))
+        );
       }
     }, i * searchData.rateLimit);
   }

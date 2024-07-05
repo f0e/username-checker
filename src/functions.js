@@ -154,7 +154,7 @@ export async function getSearchData(service) {
         ' ' +
         wordlist.name +
         ' ' +
-        chalk.grey(`${wordlist.uncheckedWords.length} remaining`)
+        chalk.dim(`${wordlist.uncheckedWords.length} remaining`)
     );
   }
 
